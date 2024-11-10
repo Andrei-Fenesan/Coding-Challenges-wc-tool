@@ -45,9 +45,19 @@ func countNumberOfLines(file *os.File) int {
 	return lines
 }
 
+func countNumberOfWords(file *os.File) int {
+	scanner := bufio.NewScanner(file)
+	scanner.Split(bufio.ScanWords)
+	wordCount := 0
+	for scanner.Scan() {
+		wordCount++
+	}
+	return wordCount
+}
+
 func isFlagValid(flag string) bool {
 	switch flag {
-	case "-c", "-l":
+	case "-c", "-l", "-w":
 		return true
 	}
 	return false
@@ -73,6 +83,8 @@ func main() {
 			fmt.Printf("%d %s", countNumberOfBytes(file), filePath)
 		} else if flag == "-l" {
 			fmt.Printf("%d %s\n", countNumberOfLines(file), filePath)
+		} else if flag == "-w" {
+			fmt.Printf("%d %s\n", countNumberOfWords(file), filePath)
 		}
 	}
 }
