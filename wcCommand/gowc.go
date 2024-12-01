@@ -2,68 +2,68 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"os"
+	"strings"
 )
 
-func isSupportedFlag(flag string) bool {
-	switch flag {
-	case "-c", "-l", "-w", "-m", "":
-		return true
-	}
-	return false
-}
-
-func registerHandlers() map[string]func(*os.File) {
-	handlers := make(map[string]func(*os.File))
-	handlers["-c"] = func(file *os.File) {
-		fmt.Printf("%d %s", CountNumberOfBytes(file), file.Name())
+func registerHandlers() map[string]func(io.Reader, string) {
+	handlers := make(map[string]func(io.Reader, string))
+	handlers["-c"] = func(reader io.Reader, fileName string) {
+		fmt.Printf("%d %s", CountNumberOfBytes(reader), fileName)
 	}
 
-	handlers["-l"] = func(file *os.File) {
-		fmt.Printf("%d %s\n", CountNumberOfLines(file), file.Name())
+	handlers["-l"] = func(reader io.Reader, fileName string) {
+		fmt.Printf("%d %s\n", CountNumberOfLines(reader), fileName)
 	}
 
-	handlers["-w"] = func(file *os.File) {
-		fmt.Printf("%d %s\n", CountNumberOfWords(file), file.Name())
+	handlers["-w"] = func(reader io.Reader, fileName string) {
+		fmt.Printf("%d %s\n", CountNumberOfWords(reader), fileName)
 	}
 
-	handlers["-m"] = func(file *os.File) {
-		fmt.Printf("%d %s\n", CountNumberOfRunes(file), file.Name())
+	handlers["-m"] = func(reader io.Reader, fileName string) {
+		fmt.Printf("%d %s\n", CountNumberOfRunes(reader), fileName)
 	}
-	handlers[""] = func(file *os.File) {
-		lines, words, bytes := CountLinesWordsAndBytes(file)
-		fmt.Printf("%d %d %d %s\n", lines, words, bytes, file.Name())
+	handlers[""] = func(reader io.Reader, fileName string) {
+		lines, words, bytes := CountLinesWordsAndBytes(reader)
+		fmt.Printf("%d %d %d %s\n", lines, words, bytes, fileName)
 	}
 	return handlers
 }
 
-func main() {
-	cmdArgs := os.Args
-
+func extractFlagAndFilePath(cmdArgs []string) (string, string) {
 	flag := ""
 	filePath := ""
-	if len(cmdArgs) < 2 {
-		panic("Invalid number of args")
-	}
 	if len(cmdArgs) == 2 {
-		//default
-		filePath = cmdArgs[1]
-	}
-	if len(cmdArgs) == 3 {
+		if strings.HasPrefix(cmdArgs[1], "-") {
+			flag = cmdArgs[1]
+		} else {
+			filePath = cmdArgs[1]
+		}
+	} else if len(cmdArgs) == 3 {
 		flag = cmdArgs[1]
 		filePath = cmdArgs[2]
 	}
+	return flag, filePath
+}
 
+func main() {
+
+	flag, filePath := extractFlagAndFilePath(os.Args)
 	handlers := registerHandlers()
 
-	if isSupportedFlag(flag) {
+	reader := os.Stdin
+	if filePath != "" {
 		file, err := os.Open(filePath)
 		if err != nil {
 			fmt.Print("No file found: " + filePath)
 			return
 		}
 		defer file.Close()
-
-		handlers[flag](file)
+		reader = file
+	}
+	handleReader := handlers[flag]
+	if handleReader != nil {
+		handleReader(reader, filePath)
 	}
 }

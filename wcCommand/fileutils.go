@@ -3,13 +3,12 @@ package main
 import (
 	"bufio"
 	"io"
-	"os"
 	"unicode"
 	"unicode/utf8"
 )
 
-func CountNumberOfBytes(file *os.File) int {
-	reader := bufio.NewReader(file)
+func CountNumberOfBytes(rd io.Reader) int {
+	reader := bufio.NewReader(rd)
 	bytesBuffer := make([]byte, 4096)
 	bytesCount := 0
 	for {
@@ -32,8 +31,8 @@ func numberOfLineBreaks(data []byte, size int) int {
 	return lineBreaks
 }
 
-func CountNumberOfLines(file *os.File) int {
-	reader := bufio.NewReader(file)
+func CountNumberOfLines(rd io.Reader) int {
+	reader := bufio.NewReader(rd)
 	bytesBuffer := make([]byte, 4096)
 	lines := 0
 	for {
@@ -46,8 +45,8 @@ func CountNumberOfLines(file *os.File) int {
 	return lines
 }
 
-func CountNumberOfWords(file *os.File) int {
-	scanner := bufio.NewScanner(file)
+func CountNumberOfWords(rd io.Reader) int {
+	scanner := bufio.NewScanner(rd)
 	scanner.Split(bufio.ScanWords)
 	wordCount := 0
 	for scanner.Scan() {
@@ -56,8 +55,8 @@ func CountNumberOfWords(file *os.File) int {
 	return wordCount
 }
 
-func CountNumberOfRunes(file *os.File) int {
-	scanner := bufio.NewScanner(file)
+func CountNumberOfRunes(rd io.Reader) int {
+	scanner := bufio.NewScanner(rd)
 	scanner.Split(bufio.ScanRunes)
 	runeCount := 0
 	for scanner.Scan() {
@@ -94,8 +93,8 @@ func numberOFWords(byteBuffer []byte, nonSpaceBefore bool) (int, bool, []byte) {
 }
 
 // returns the number of (lines, words, bytes) in a file
-func CountLinesWordsAndBytes(file *os.File) (int, int, int) {
-	reader := bufio.NewReader(file)
+func CountLinesWordsAndBytes(rd io.Reader) (int, int, int) {
+	reader := bufio.NewReader(rd)
 	bytesBuffer := make([]byte, 4096)
 	buff := make([]byte, 0, 10)
 	var leftover []byte = nil
