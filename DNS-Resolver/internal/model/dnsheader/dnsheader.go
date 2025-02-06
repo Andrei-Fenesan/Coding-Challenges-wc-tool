@@ -1,7 +1,7 @@
 package dnsheader
 
 import (
-	. "dnsresolver/internal/model/utils"
+	"dnsresolver/internal/model/utils"
 	"encoding/binary"
 	"fmt"
 )
@@ -15,6 +15,11 @@ type DnsHeader struct {
 	ArCount uint16
 }
 
+// Encode encodes the header into a []byte that can be transmited on netowrk.
+//
+// header *DnsHeader - The header that is going to be encoded.
+//
+// Returns the question that is encoded acording to https://datatracker.ietf.org/doc/html/rfc1035#section-4.1.1
 func (header *DnsHeader) Encode() []byte {
 	result := make([]byte, 0)
 	result = binary.BigEndian.AppendUint16(result, header.Id)
@@ -43,8 +48,8 @@ func Decode(header [12]byte) *DnsHeader {
 	return &dnsHeaderResponse
 }
 
-func (header *DnsHeader) Print() {
-	fmt.Printf("Id: %d\nflags: %x\nQuestion count: %d\nAns count: %d\nName server resource count: %d\nAdditional Resource count: %d\n",
+func (header DnsHeader) String() string {
+	return fmt.Sprintf("{\n Id: %d\n Flags: %x\n Question count: %d\n Ans count: %d\n Name server resource count: %d\n Additional Resource count: %d\n}",
 		header.Id,
 		header.Flags,
 		header.QdCount,
@@ -55,16 +60,16 @@ func (header *DnsHeader) Print() {
 
 func (header *DnsHeader) SetQR(question bool) {
 	if question {
-		ClearBit(&header.Flags[0], 7)
+		utils.ClearBit(&header.Flags[0], 7)
 	} else {
-		SetBit(&header.Flags[0], 7)
+		utils.SetBit(&header.Flags[0], 7)
 	}
 }
 
 func (header *DnsHeader) SetRecursion(recursion bool) {
 	if recursion {
-		SetBit(&header.Flags[0], 0)
+		utils.SetBit(&header.Flags[0], 0)
 	} else {
-		ClearBit(&header.Flags[0], 0)
+		utils.ClearBit(&header.Flags[0], 0)
 	}
 }

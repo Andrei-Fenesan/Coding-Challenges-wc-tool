@@ -23,5 +23,5 @@ func main() {
 	fmt.Printf("%x\n", response)
 	conn.Close()
 	responseMsg := model.ParseResponse(response)
-	responseMsg.Print()
+	fmt.Println(responseMsg.Print())
 }
