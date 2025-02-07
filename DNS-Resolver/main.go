@@ -9,7 +9,7 @@ import (
 func main() {
 	msg := model.NewQuestion(22, "dns.google.com")
 	fmt.Printf("%x\n", msg.Encode())
-	conn, err := net.Dial("udp", "8.8.8.8:53")
+	conn, err := net.Dial("udp", "198.41.0.4:53")
 	if err != nil {
 		fmt.Printf("Some error %v", err)
 		return
@@ -17,7 +17,7 @@ func main() {
 	wrote, _ := conn.Write(msg.Encode())
 	fmt.Printf("Wrote %d\n", wrote)
 
-	response := make([]byte, 65)
+	response := make([]byte, 492)
 	read, err := conn.Read(response)
 	fmt.Printf("Read %d\n", read)
 	fmt.Printf("%x\n", response)

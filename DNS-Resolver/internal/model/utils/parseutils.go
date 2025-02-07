@@ -17,13 +17,17 @@ func ParseName(response []byte, startOffset uint16) (string, uint16) {
 	nameSectionLength := uint16(0)
 	labels := make([]string, 0, 1)
 	currentPos := startOffset
+	hadPointerBefore := false
 	for {
 		if currentPos >= uint16(len(response)) {
 			break
 		}
 		if isPointer(response[currentPos]) {
 			currentPos = binary.BigEndian.Uint16([]byte{ExtractTheLastSixBits(response[currentPos]), response[currentPos+1]})
-			nameSectionLength += 2
+			if !hadPointerBefore {
+				nameSectionLength += 2
+				hadPointerBefore = true
+			}
 		} else {
 			length := uint16(response[currentPos])
 			if currentPos >= startOffset {

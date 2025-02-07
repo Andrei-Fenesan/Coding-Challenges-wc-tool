@@ -27,7 +27,7 @@ func NewQuestion(id uint16, domainName string) *Message {
 		Name: domainName,
 	}
 	header.SetQR(true)
-	header.SetRecursion(true)
+	header.SetRecursion(false)
 	question.SetClass(1)
 	question.SetType(1)
 	msg := Message{
@@ -43,9 +43,9 @@ func NewQuestion(id uint16, domainName string) *Message {
 func ParseResponse(response []byte) *Message {
 	header := *dnsheader.Decode([12]byte(response[:12]))
 	questions, nextPos := dnsquestion.ParseQuestionSection(response, header.QdCount)
-	answers, nexPosAns := dnsresource.ParseReource(response, 2, nextPos)
-	authorities, nextPosAuthorities := dnsresource.ParseReource(response, header.ArCount, nexPosAns)
-	additionals, _ := dnsresource.ParseReource(response, header.NsCount, nextPosAuthorities)
+	answers, nexPosAns := dnsresource.ParseReource(response, header.AnCount, nextPos)
+	authorities, nextPosAuthorities := dnsresource.ParseReource(response, header.NsCount, nexPosAns)
+	additionals, _ := dnsresource.ParseReource(response, header.ArCount, nextPosAuthorities)
 
 	return &Message{
 		header:     header,
