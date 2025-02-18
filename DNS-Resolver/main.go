@@ -3,25 +3,29 @@ package main
 import (
 	"dnsresolver/internal/model"
 	"fmt"
-	"net"
+	"math/rand/v2"
+	"os"
 )
 
 func main() {
-	msg := model.NewQuestion(22, "dns.google.com")
-	fmt.Printf("%x\n", msg.Encode())
-	conn, err := net.Dial("udp", "198.41.0.4:53")
-	if err != nil {
-		fmt.Printf("Some error %v", err)
+	if len(os.Args) < 2 {
+		fmt.Println("No argumensts")
 		return
 	}
-	wrote, _ := conn.Write(msg.Encode())
-	fmt.Printf("Wrote %d\n", wrote)
+	domainName := os.Args[1]
 
-	response := make([]byte, 492)
-	read, err := conn.Read(response)
-	fmt.Printf("Read %d\n", read)
-	fmt.Printf("%x\n", response)
-	conn.Close()
-	responseMsg := model.ParseResponse(response)
-	fmt.Println(responseMsg.Print())
+	msg := model.NewQuestion(uint16(rand.Int64N(1000)), domainName)
+	ips, err := msg.ResolveName()
+	if err != nil {
+		fmt.Printf("Error: %v", err)
+		return
+	}
+	if ips == nil {
+		fmt.Println("No ips found...")
+		return
+	}
+	fmt.Printf("Ips of the: %s\n", domainName)
+	for i, ip := range ips {
+		fmt.Printf("[%d]: %s\n", i, ip)
+	}
 }

@@ -31,6 +31,10 @@ func (header *DnsHeader) Encode() []byte {
 	return result
 }
 
+func (header *DnsHeader) ErrorCode() uint8 {
+	return uint8(utils.ExtractTheLastFourBits(header.Flags[1]))
+}
+
 func Decode(header [12]byte) *DnsHeader {
 	id := binary.BigEndian.Uint16(header[:2])
 	flags := header[2:4]

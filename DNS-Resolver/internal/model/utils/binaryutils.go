@@ -41,3 +41,14 @@ func StartsWithTheFirstTwoBitsSet(b byte) bool {
 func ExtractTheLastSixBits(b byte) byte {
 	return b & (0b00111111)
 }
+
+// ExtractTheLastFourBits will return a byte that contains the last 4 bits from the byte parameter.
+//
+// b byte - The byte from which the last flor bits will be extracted.
+//
+// Examples:
+//
+//	ExtractTheLastSixBits(0b11111010) = 0b00001010
+func ExtractTheLastFourBits(b byte) byte {
+	return b & (0b00001111)
+}

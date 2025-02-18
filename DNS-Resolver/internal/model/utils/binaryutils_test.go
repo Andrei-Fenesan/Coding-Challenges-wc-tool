@@ -23,3 +23,9 @@ func TestExtractTheLastSixBits(t *testing.T) {
 
 	assert.Equal(byte(0b00011110), byte(ExtractTheLastSixBits(0b11011110)))
 }
+
+func TestExtractTheFourBits(t *testing.T) {
+	assert := assert.New(t)
+
+	assert.Equal(byte(0b00001110), byte(ExtractTheLastFourBits(0b11011110)))
+}

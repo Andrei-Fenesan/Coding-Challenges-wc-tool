@@ -7,12 +7,13 @@ import (
 )
 
 type DnsResource struct {
-	Name         string
-	ResourceType [2]byte
-	Class        [2]byte
-	Ttl          uint32
-	RdLenght     uint16
-	RData        []byte
+	Name             string
+	ResourceType     [2]byte
+	Class            [2]byte
+	Ttl              uint32
+	RdLenght         uint16
+	RData            []byte
+	RDataStartOffset uint16
 }
 
 // ParseReource extracts the resource described in RFC 1035 (https://datatracker.ietf.org/doc/html/rfc1035#section-4.1.3).
@@ -44,14 +45,23 @@ func extreactResource(response []byte, startOffset uint16) (DnsResource, uint16)
 	rdLength := binary.BigEndian.Uint16(response[nextPos+8 : nextPos+10])
 	rdData := response[nextPos+10 : nextPos+10+rdLength]
 	resource := DnsResource{
-		Name:         name,
-		ResourceType: resourceType,
-		Class:        class,
-		Ttl:          ttl,
-		RdLenght:     rdLength,
-		RData:        rdData,
+		Name:             name,
+		ResourceType:     resourceType,
+		Class:            class,
+		Ttl:              ttl,
+		RdLenght:         rdLength,
+		RData:            rdData,
+		RDataStartOffset: nextPos + 10,
 	}
 	return resource, nextPos + 10 + rdLength
+}
+
+func (resource *DnsResource) IsNsType() bool {
+	return resource.Class == [2]byte{0x00, 0x01} && resource.ResourceType == [2]byte{0x00, 0x02}
+}
+
+func (resource *DnsResource) IsAType() bool {
+	return resource.Class == [2]byte{0x00, 0x01} && resource.ResourceType == [2]byte{0x00, 0x01}
 }
 
 // String method reuturns the string representation if the DnsResource
