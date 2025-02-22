@@ -68,11 +68,11 @@ func (msg *Message) resolveName(ipAddress string) ([]string, error) {
 	}
 
 	responseMessage := ParseResponse(response[:responseSize])
-	if errorCode := responseMessage.header.ErrorCode(); errorCode != 0 {
-		return nil, errors.New("Error code received: " + string(errorCode))
+	if errorCode := responseMessage.header.GetErrorCode(); errorCode != 0 {
+		return nil, errors.New("error code received: " + string(errorCode))
 	}
 	if responseMessage.header.Id != msg.header.Id {
-		return nil, errors.New("INVALID ID RECEIVED")
+		return nil, errors.New("invalid id received")
 	}
 
 	if len(responseMessage.answer) != 0 {

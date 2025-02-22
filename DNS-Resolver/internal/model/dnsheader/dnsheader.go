@@ -31,7 +31,7 @@ func (header *DnsHeader) Encode() []byte {
 	return result
 }
 
-func (header *DnsHeader) ErrorCode() uint8 {
+func (header *DnsHeader) GetErrorCode() uint8 {
 	return uint8(utils.ExtractTheLastFourBits(header.Flags[1]))
 }
 
