@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 	"strconv"
+	"webserver/internal/handler"
 	"webserver/internal/model/httpentity"
 )
 
@@ -18,15 +19,16 @@ type ConnectionManager interface {
 }
 
 type ConcurrentConnectionManger struct {
-	port uint32
+	port           uint32
+	requestHandler handler.RequestHandler
 }
 
-func NewConcurrentConnectionManger(port ...uint32) *ConcurrentConnectionManger {
+func NewConcurrentConnectionManger(rq handler.RequestHandler, port ...uint32) *ConcurrentConnectionManger {
 	actualPort := DEFAULT_SERVER_PORT
 	if len(port) > 0 {
 		actualPort = port[0]
 	}
-	return &ConcurrentConnectionManger{port: actualPort}
+	return &ConcurrentConnectionManger{port: actualPort, requestHandler: rq}
 }
 
 func (cm *ConcurrentConnectionManger) Start() error {
@@ -57,11 +59,19 @@ func (cm *ConcurrentConnectionManger) handleConnection(conn net.Conn) {
 	log.Println("Received request\n", string(data))
 	req, err := httpentity.ParseRequest(data)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
+		r := &httpentity.Response{ResponseCode: 400, Version: req.HttpVersion}
+		conn.Write(r.Encode())
 		return
 	}
-	a := fmt.Sprintf("HTTP/1.1 200 OK\r\n\r\nRequested path:\n %s\r\n", req.Path)
-	conn.Write([]byte(a))
+	response, err := cm.requestHandler.ServeRequest(req)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	responseData := response.Encode()
+	fmt.Println(string(responseData))
+	conn.Write(responseData)
 }
 
 func readAll(conn net.Conn) ([]byte, error) {

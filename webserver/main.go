@@ -1,8 +1,12 @@
 package main
 
-import "webserver/internal/model/manager"
+import (
+	"webserver/internal/handler"
+	"webserver/internal/manager"
+)
 
 func main() {
-	connManager := manager.NewConcurrentConnectionManger(8081)
+	requestHandler := handler.NewHttpRequestHandler("/Users/afenesan/Desktop/personalProj/challenges/webserver/resources")
+	connManager := manager.NewConcurrentConnectionManger(requestHandler, 8081)
 	connManager.Start()
 }

@@ -18,9 +18,9 @@ func TestShouldParseRequestSuccessfully(t *testing.T) {
 	assert.Nil(err)
 	assert.NotNil(request)
 
-	assert.Equal(GET, request.httpMethod)
+	assert.Equal(GET, request.HttpMethod)
 	assert.Equal("/users", request.Path)
-	assert.Equal("HTTP/1.1", request.httpVersion)
+	assert.Equal("HTTP/1.1", request.HttpVersion)
 }
 
 func TestShouldParseRequestShouldFaildWhenUnknownHttpMethod(t *testing.T) {
